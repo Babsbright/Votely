@@ -144,7 +144,7 @@ export default function LandingPage() {
             Create & Run <br /> Stunning Voting Events
           </h1>
           <p className="text-sm text-gray-300 mb-8">
-            Whether it's a photo contest, talent show, or fan favorite challenge
+            Whether it&apos;s a photo contest, talent show, or fan favorite challenge
             — Votelly makes it ridiculously easy to set up, vote, and view
             results live.
           </p>
@@ -168,7 +168,7 @@ export default function LandingPage() {
           <h2 className="text-xl font-bold mb-4">Start Your Own Contest</h2>
           <p className="text-sm mb-6">
             Set up an event in minutes. Add contestants, set vote limits, and go
-            live. It's free, secure, and insanely fast.
+            live. It&apos;s free, secure, and insanely fast.
           </p>
           <Link
             href="/events"
