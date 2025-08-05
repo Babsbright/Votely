@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { db } from "../lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import Link from "next/link";
 import CreateEventModal from "./CreateEventModal";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -10,7 +10,7 @@ import { auth } from "../lib/firebase";
 import { logoutWithRouter } from "../lib/logout";
 import { useRouter } from "next/navigation";
 import { withAuth } from "../lib/withAuth";
-
+import Footer from "../event/Footer";
 
 function formatCountdown(ms: number) {
   if (ms <= 0) return "Voting Ended";
@@ -30,33 +30,44 @@ const AllEventsPage = () => {
   const router = useRouter();
 
   const handleLogout = () => logoutWithRouter(router);
+
   useEffect(() => {
     const fetchEvents = async () => {
-      const snapshot = await getDocs(collection(db, "events"));
+      if (!user) return; // Wait until auth state is ready
 
-      // Fetch contestant counts in parallel
-      const eventsWithCounts = await Promise.all(
-        snapshot.docs.map(async (docSnap) => {
-          const data = docSnap.data();
-          const id = docSnap.id;
+      try {
+        const q = query(
+          collection(db, "events"),
+          where("creatorId", "==", user.uid)
+        );
 
-          const contestantsSnap = await getDocs(
-            collection(db, "events", id, "contestants")
-          );
+        const snapshot = await getDocs(q);
 
-          return {
-            id,
-            ...data,
-            contestantCount: contestantsSnap.size,
-          };
-        })
-      );
+        const eventsWithCounts = await Promise.all(
+          snapshot.docs.map(async (docSnap) => {
+            const data = docSnap.data();
+            const id = docSnap.id;
 
-      setEvents(eventsWithCounts);
+            const contestantsSnap = await getDocs(
+              collection(db, "events", id, "contestants")
+            );
+
+            return {
+              id,
+              ...data,
+              contestantCount: contestantsSnap.size,
+            };
+          })
+        );
+
+        setEvents(eventsWithCounts);
+      } catch (error) {
+        console.error("Error fetching user-specific events:", error);
+      }
     };
 
     fetchEvents();
-  }, []);
+  }, [user]);
 
   const filteredEvents = events.filter((ev) => {
     const matchesSearch =
@@ -73,29 +84,32 @@ const AllEventsPage = () => {
 
   return (
     <div className="">
-      <div className="bg-purple-100 p-6 rounded-lg shadow-md mb-6 text-sm font-outfit">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <h2 className="text-2xl font-bold text-purple-800 w-full md:w-auto">
-            🎯 Explore Events
+      <div className="bg-[#1c1c1f] border border-[#2a2a2e] backdrop-blur-md py-6 px-6 lg:px-12 shadow-lg mb-6 text-sm font-outfit text-white">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <h2 className="text-2xl font-semibold text-purple-500 hero-card">
+            Votelly
           </h2>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
             <input
               type="text"
               placeholder="Search events..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full sm:w-64 p-2 border border-purple-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+              className="w-full sm:w-64 px-4 py-2 rounded-lg bg-[#2a2a2e] border border-[#444] focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder:text-gray-400 text-sm"
             />
 
             <button
               onClick={() => setModalOpen(true)}
-              className="bg-purple-600 text-white px-4 py-2 rounded"
+              className="bg-purple-600 hover:bg-purple-700 transition text-white px-4 py-2 rounded-lg text-sm font-medium"
             >
               ➕ Create Event
             </button>
 
-           <button onClick={handleLogout} className="block text-left bg-red-500 px-3 py-2 rounded">
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+            >
               Logout
             </button>
 
@@ -107,67 +121,55 @@ const AllEventsPage = () => {
         </div>
 
         {/* Filter Buttons */}
-        <div className="flex flex-wrap gap-2 mt-4 justify-center md:justify-end">
-          <button
-            onClick={() => setFilter("all")}
-            className={`px-4 py-1.5 rounded-full border transition ${
-              filter === "all"
-                ? "bg-purple-600 text-white border-purple-600"
-                : "bg-white text-purple-700 border-purple-300 hover:bg-purple-50"
-            }`}
-          >
-            All
-          </button>
-          <button
-            onClick={() => setFilter("free")}
-            className={`px-4 py-1.5 rounded-full border transition ${
-              filter === "free"
-                ? "bg-green-500 text-white border-green-500"
-                : "bg-white text-green-700 border-green-300 hover:bg-green-50"
-            }`}
-          >
-            Free
-          </button>
-          <button
-            onClick={() => setFilter("paid")}
-            className={`px-4 py-1.5 rounded-full border transition ${
-              filter === "paid"
-                ? "bg-red-500 text-white border-red-500"
-                : "bg-white text-red-700 border-red-300 hover:bg-red-50"
-            }`}
-          >
-            Paid
-          </button>
+        <div className="flex flex-wrap gap-2 mt-6 justify-center md:justify-end">
+          {(["all", "free", "paid"] as Array<"all" | "free" | "paid">).map(
+            (type) => {
+              const isActive = filter === type;
+              const base = "px-4 py-1.5 rounded-full border text-xs transition";
+
+              const styles = {
+                all: isActive
+                  ? "bg-purple-600 border-purple-600 text-white"
+                  : "bg-transparent text-purple-300 border-purple-400 hover:bg-purple-900",
+                free: isActive
+                  ? "bg-green-500 border-green-500 text-white"
+                  : "bg-transparent text-green-300 border-green-400 hover:bg-green-900",
+                paid: isActive
+                  ? "bg-red-500 border-red-500 text-white"
+                  : "bg-transparent text-red-300 border-red-400 hover:bg-red-900",
+              };
+
+              return (
+                <button
+                  key={type}
+                  onClick={() => setFilter(type)}
+                  className={`${base} ${styles[type as keyof typeof styles]}`}
+                >
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </button>
+              );
+            }
+          )}
         </div>
       </div>
 
-     <div className="p-6 min-h-[40vh]">
-  {filteredEvents.length === 0 ? (
-    <div className="flex items-center justify-center h-full text-center text-gray-500 text-xl font-semibold">
-    No event created yet
+      <div className="py-6 min-h-[40vh]">
+        {filteredEvents.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-center text-gray-500 text-xl font-semibold">
+            Welcome, No event created yet
+          </div>
+        ) : (
+          <div className="px-6 lg:px-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {filteredEvents.map((ev) => (
+              <EventCard key={ev.id} ev={ev} />
+            ))}
+          </div>
+        )}
+      </div>
+      {/* <Footer /> */}
     </div>
-  ) : (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-      {filteredEvents.map((ev) => (
-        <EventCard key={ev.id} ev={ev} />
-      ))}
-    </div>
-  )}
-</div>
-
-      <footer className="bg-gray-100 text-center py-4 text-sm text-gray-600 mt-10">
-        <p>© {new Date().getFullYear()} Votely. All rights reserved.</p>
-        <p className="mt-1">Built with 💜 by the brains that never sleep.</p>
-      </footer>
-    </div>
-
-    // <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-6">
-    //   {events.map((ev) => (
-    //     <EventCard key={ev.id} ev={ev} />
-    //   ))}
-    // </div>
   );
-}
+};
 
 function EventCard({ ev }: { ev: any }) {
   const [timeLeft, setTimeLeft] = useState("Calculating...");
@@ -223,4 +225,4 @@ function EventCard({ ev }: { ev: any }) {
   );
 }
 
-export default withAuth(AllEventsPage)
+export default withAuth(AllEventsPage);

@@ -10,25 +10,7 @@ import { FaInstagram, FaXTwitter, FaFacebookF } from "react-icons/fa6";
 gsap.registerPlugin(ScrollTrigger);
 export default function LandingPage() {
   useEffect(() => {
-    gsap.utils.toArray(".fade-in").forEach((el) => {
-      gsap.fromTo(
-        el as Element,
-        { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: el as Element,
-            start: "top 85%",
-            toggleActions: "play none none none",
-            once: true, // important to prevent flicker
-          },
-        }
-      );
-    });
-
+  
     // Animate headline text with SplitType
     const split = new SplitType(".hero-heading", { types: "words,chars" });
     gsap.from(split.chars, {
@@ -291,30 +273,30 @@ export default function LandingPage() {
             <h4 className="text-sm font-semibold text-purple-500 mb-2">
               Stay Connected
             </h4>
-            <div className="flex gap-4 text-lg mb-4">
+            <div className="flex gap-4 text-lg mb-4 social-icon">
               <Link
                 href="https://instagram.com"
                 target="_blank"
-                className="social-icon hover:text-white social-icon"
+                className="hover:text-white social-icon"
               >
                 <FaInstagram />
               </Link>
               <Link
                 href="https://twitter.com"
                 target="_blank"
-                className="social-icon hover:text-white social-icon"
+                className="hover:text-white social-icon"
               >
                 <FaXTwitter />
               </Link>
               <Link
                 href="https://facebook.com"
                 target="_blank"
-                className="social-icon hover:text-white social-icon"
+                className="hover:text-white social-icon"
               >
                 <FaFacebookF />
               </Link>
             </div>
-            <form className="flex items-center gap-2 group newsletter-form">
+            <form className="flex items-center gap-2 group">
               <input
                 type="email"
                 placeholder="Your email"

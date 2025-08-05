@@ -23,7 +23,7 @@ import AddContestantModal from "../../../components/AddContestantModal";
 import VotingLink from "../../../components/votingLink";
 import { useAuthState } from "react-firebase-hooks/auth";
 import Navbar from "../../navbar";
-import Footer from "@/app/components/Footer";
+import Footer from "../../Footer";
 import toast from "react-hot-toast";
 
 export default function ViewEventPage() {
@@ -213,9 +213,6 @@ const handleVote = async (contestantId: string) => {
     setLoading(false);
   }
 };
-
-
-
 
 
   if (!event)
