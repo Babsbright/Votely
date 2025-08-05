@@ -19,7 +19,6 @@ import { onAuthStateChanged } from "firebase/auth";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import Link from "next/link";
 import AddContestantModal from "../../../components/AddContestantModal";
 import VotingLink from "../../../components/votingLink";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -47,8 +46,7 @@ export default function ViewEventPage() {
     const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     setContestants(data);
   };
-  // console.log(event)
-  //     console.log(userAuth)
+
 
   useEffect(() => {
     const fetchData = async () => {

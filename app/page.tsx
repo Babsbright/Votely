@@ -10,20 +10,6 @@ import { FaInstagram, FaXTwitter, FaFacebookF } from "react-icons/fa6";
 gsap.registerPlugin(ScrollTrigger);
 export default function LandingPage() {
   useEffect(() => {
-    // Animate general fade-in opacity-0s on scroll
-    // gsap.utils.toArray(".fade-in").forEach((el) => {
-    //   gsap.from(el as Element, {
-    //     opacity: 0,
-    //     y: 40,
-    //     duration: 1,
-    //     ease: "power2.out",
-    //     scrollTrigger: {
-    //       trigger: el as Element,
-    //       start: "top 85%",
-    //     },
-    //   });
-    // });
-
     gsap.utils.toArray(".fade-in").forEach((el) => {
       gsap.fromTo(
         el as Element,

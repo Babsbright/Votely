@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user] = useAuthState(auth);
-  const [userAuth] = useAuthState(auth);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const router = useRouter();
