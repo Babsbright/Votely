@@ -1,113 +1,180 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import Link from "next/link";
+import { useEffect } from "react";
+import gsap from "gsap";
+
+export default function LandingPage() {
+  useEffect(() => {
+    gsap.from(".fade-in", {
+      opacity: 1,
+      y: 40,
+      duration: 1,
+      ease: "power2.out",
+      stagger: 0.2,
+    });
+  }, []);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    // <main className="min-h-screen bg-gradient-to-br from-purple-100 via-white to-purple-200 text-gray-900 font-outfit overflow-x-hidden">
+    <main className="min-h-screen bg-black text-white font-outfit overflow-x-hidden">
+    {/* Navbar */}
+      {/* <nav className="sticky top-0 z-50 bg-white bg-opacity-95 backdrop-blur-md shadow-md py-4 px-6 md:px-12 flex justify-between items-center">
+        <Link href="/" className="text-3xl font-extrabold text-purple-700">
+          Votelly
+        </Link>
+        <div className="space-x-4 hidden sm:flex">
+          <Link href="/events" className="hover:text-purple-600 font-medium">
+            Events
+          </Link>
+          <Link href="/create-event" className="hover:text-purple-600 font-medium">
+            Create Event
+          </Link>
+          <Link href="/login" className="hover:text-purple-600 font-medium">
+            Login
+          </Link>
+          <Link
+            href="/signup"
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-purple-700"
           >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+            Sign Up
+          </Link>
         </div>
-      </div>
+      </nav> */}
+      {/* Navbar */}
+      <nav className="sticky top-0 z-50 bg-black bg-opacity-95 backdrop-blur-md shadow-md py-4 px-6 md:px-12 flex items-center justify-between">
+        <Link href="/" className="text-3xl font-extrabold text-white">
+          Votelly
+        </Link>
+        <div className="space-x-4 hidden sm:flex items-center">
+         
+          <Link href="/events" className="hover:text-purple-300 font-medium">
+            Create Event
+          </Link>
+         
+          <Link
+            href="/login"
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-purple-700"
+          >
+           Login
+          </Link>
+        </div>
+      </nav>
 
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
+    {/* Hero Section - Webex Style */}
+      <section className="relative min-h-[80vh] flex flex-col md:flex-row justify-between items-center px-6 md:px-20 py-20 bg-[url('/hero.jpg')] bg-cover bg-center bg-no-repeat">
+        <div className="md:w-1/2 text-left">
+          <h1 className="text-5xl md:text-6xl font-bold leading-tight text-white mb-6">
+            Create & Run <br /> Stunning Voting Events
+          </h1>
+          <p className="text-lg text-gray-300 mb-8">
+            Whether it's a photo contest, talent show, or fan favorite challenge — Votelly makes it ridiculously easy to set up, vote, and view results live.
           </p>
-        </a>
+          <div>
+            <p className="text-md text-purple-400 font-medium mb-2">
+              Featured Event:
+            </p>
+            <p className="text-xl font-bold text-purple-400">
+              Top Model Africa — Voting Ends August 13, 2025
+            </p>
+            <p className="text-sm text-gray-400 mb-6">
+              (UTC+01:00) West Central Africa
+            </p>
+            <p className="text-sm text-white">
+              <span className="font-semibold">Organizer:</span> FameFest Studios
+            </p>
+          </div>
+        </div>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
+        <div className="md:w-1/2 bg-white text-black rounded-lg shadow-lg p-8 max-w-sm mt-10 md:mt-0">
+          <h2 className="text-2xl font-bold mb-4">Start Your Own Contest</h2>
+          <p className="text-sm mb-6">
+            Set up an event in minutes. Add contestants, set vote limits, and go live. It's free, secure, and insanely fast.
           </p>
-        </a>
+          <Link
+            href="/events"
+            className="block w-full text-center bg-purple-600 hover:bg-purple-700 text-white py-3 rounded font-semibold"
+          >
+            Launch an Event
+          </Link>
+        </div>
+      </section>
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
+      {/* Testimonials */}
+      <section className="py-24 bg-purple-100">
+        <div className="max-w-5xl mx-auto px-6 text-center">
+          <h2 className="text-3xl font-bold text-purple-800 mb-12">What Users Are Saying</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[1, 2, 3].map((_, i) => (
+              <div key={i} className="bg-white p-6 rounded-xl shadow-md fade-in">
+                <p className="text-gray-700 text-sm italic">
+                  "Votelly made our community contest go viral! We had over 5,000 votes in 48 hours."
+                </p>
+                <div className="mt-4 text-left">
+                  <p className="font-semibold text-purple-700">Jane M.</p>
+                  <p className="text-xs text-gray-500">Event Host, Lagos</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
+      {/* Pricing Preview */}
+      <section className="py-24 bg-white text-center">
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="text-3xl font-bold text-purple-800 mb-8">Pricing that Fits Everyone</h2>
+          <p className="text-gray-700 mb-12">
+            Start for free. Upgrade only when you're ready for more powerful features.
           </p>
-        </a>
-      </div>
+          <div className="grid sm:grid-cols-2 gap-8">
+            <div className="p-8 bg-purple-50 rounded-xl shadow-md fade-in">
+              <h3 className="text-xl font-semibold text-purple-700 mb-4">Free Plan</h3>
+              <ul className="text-sm text-gray-700 space-y-2">
+                <li>✅ Create 1 Event</li>
+                <li>✅ Up to 500 Votes</li>
+                <li>✅ Live Results</li>
+                <li>✅ Export as PDF</li>
+              </ul>
+            </div>
+            <div className="p-8 bg-purple-600 text-white rounded-xl shadow-lg fade-in">
+              <h3 className="text-xl font-semibold mb-4">Pro Plan</h3>
+              <ul className="text-sm space-y-2">
+                <li>🚀 Unlimited Events</li>
+                <li>🚀 Unlimited Votes</li>
+                <li>🚀 Voter Analytics</li>
+                <li>🚀 Priority Support</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-20 bg-purple-700 text-white text-center">
+        <h2 className="text-4xl font-bold mb-4">Ready to Launch Your Contest?</h2>
+        <p className="text-lg mb-6">Get started for free and watch the votes roll in.</p>
+        <Link
+          href="/create-event"
+          className="bg-white text-purple-700 px-6 py-3 text-lg font-semibold rounded hover:bg-purple-100"
+        >
+          Create Event Now
+        </Link>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-100 py-6 text-center text-gray-600 text-sm">
+        © {new Date().getFullYear()} Votelly. Built with 💜 in Naija.
+      </footer>
     </main>
+  );
+}
+
+function Stat({ number, label }: { number: string; label: string }) {
+  return (
+    <div>
+      <div className="text-2xl font-bold text-purple-700">{number}</div>
+      <div className="text-gray-700 text-sm">{label}</div>
+    </div>
   );
 }
