@@ -73,7 +73,7 @@ const AllEventsPage = () => {
 
   return (
     <div className="">
-      <div className="bg-purple-100 p-6 rounded-lg shadow-md mb-6">
+      <div className="bg-purple-100 p-6 rounded-lg shadow-md mb-6 text-sm font-outfit">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <h2 className="text-2xl font-bold text-purple-800 w-full md:w-auto">
             🎯 Explore Events

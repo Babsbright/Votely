@@ -5,7 +5,7 @@ import { auth } from "./firebase";
 export async function logoutWithRouter(router: any) {
   try {
     await signOut(auth);
-    router.push("/login");
+    router.push("/");
   } catch (error) {
     console.error("Logout failed:", error);
   }
