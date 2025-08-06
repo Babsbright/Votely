@@ -16,7 +16,6 @@ import {
   where,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import AddContestantModal from "../../../components/AddContestantModal";
@@ -25,6 +24,15 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import Navbar from "../../navbar";
 import Footer from "../../Footer";
 import toast from "react-hot-toast";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieLabelRenderProps,
+} from "recharts";
 
 export default function ViewEventPage() {
   const { id: eventId } = useParams();
@@ -35,8 +43,51 @@ export default function ViewEventPage() {
   const [loading, setLoading] = useState(false);
   const [ended, setEnded] = useState(false);
   const [showModal, setShowModal] = useState(false);
-
   const [userAuth] = useAuthState(auth);
+
+  const COLORS = [
+    "#8b5cf6", // purple-500
+    "#6366f1", // indigo-500
+    "#7c3aed", // violet-600
+    "#a78bfa", // purple-400
+    "#4f46e5", // indigo-600
+    "#9333ea", // violet-700
+  ];
+
+  const renderCustomizedLabel = ({
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    percent,
+  }: PieLabelRenderProps) => {
+    const RADIAN = Math.PI / 180;
+
+    const cxNum = Number(cx ?? 0);
+    const cyNum = Number(cy ?? 0);
+    const inner = Number(innerRadius ?? 0);
+    const outer = Number(outerRadius ?? 0);
+    const pct = percent ?? 0;
+
+    const radius = inner + (outer - inner) * 0.6;
+    const x = cxNum + radius * Math.cos(-midAngle * RADIAN);
+    const y = cyNum + radius * Math.sin(-midAngle * RADIAN);
+
+    return (
+      <text
+        x={x}
+        y={y}
+        fill="#e0e0e0"
+        textAnchor={x > cxNum ? "start" : "end"}
+        dominantBaseline="central"
+        fontSize={12}
+        className="font-sora"
+      >
+        {`${(pct * 100).toFixed(0)}%`}
+      </text>
+    );
+  };
 
   const fetchContestants = async () => {
     if (!eventId) return;
@@ -46,7 +97,6 @@ export default function ViewEventPage() {
     const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     setContestants(data);
   };
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,7 +117,6 @@ export default function ViewEventPage() {
     if (eventId) fetchData();
   }, [eventId, ended]);
 
-  //   const isAdmin = user?.email === event?.createdBy;
   const isAdmin = user?.uid === event?.creatorId;
 
   useEffect(() => {
@@ -126,98 +175,97 @@ export default function ViewEventPage() {
     })();
 
   // Function to check if the voter can vote
-  const checkIfUserCanVote = async (eventId: string, voterId: string) => {
-    const eventSnap = await getDoc(doc(db, "events", eventId));
-    const { votesPerUser = 1, voteReset = "none" } = eventSnap.data() || {};
+  // const checkIfUserCanVote = async (eventId: string, voterId: string) => {
+  //   const eventSnap = await getDoc(doc(db, "events", eventId));
+  //   const { votesPerUser = 1, voteReset = "none" } = eventSnap.data() || {};
 
-    // const snap = await getDocs(
-    //   query(
-    //     collection(db, "events", eventId, "votes"),
-    //     where("voterId", "==", voterId)
-    //   )
-    // );
+  //   const snap = await getDocs(
+  //     query(
+  //       collection(db, "events", String(eventId), "votes"),
+  //       where("voterId", "==", voterId)
+  //     )
+  //   );
 
-    const snap = await getDocs(
-      query(
-        collection(db, "events", String(eventId), "votes"),
-        where("voterId", "==", voterId)
-      )
-    );
+  //   let votes = snap.docs;
+  //   if (voteReset === "daily") {
+  //     const start = new Date();
+  //     start.setHours(0, 0, 0, 0);
+  //     votes = votes.filter((d) => d.data().createdAt?.toDate() >= start);
+  //   }
+  //   if (voteReset === "hourly") {
+  //     const cutoff = new Date(Date.now() - 3600000);
+  //     votes = votes.filter((d) => d.data().createdAt?.toDate() >= cutoff);
+  //   }
 
-    let votes = snap.docs;
-    if (voteReset === "daily") {
-      const start = new Date();
-      start.setHours(0, 0, 0, 0);
-      votes = votes.filter((d) => d.data().createdAt?.toDate() >= start);
-    }
-    if (voteReset === "hourly") {
-      const cutoff = new Date(Date.now() - 3600000);
-      votes = votes.filter((d) => d.data().createdAt?.toDate() >= cutoff);
-    }
+  //   return votes.length < votesPerUser;
+  // };
 
-    return votes.length < votesPerUser;
-  };
+  function canVoteLocally(
+    eventId: string,
+    votesPerUser: number,
+    voteReset: "none" | "daily" | "hourly"
+  ): boolean {
+    const stored = localStorage.getItem(`voted_${eventId}`);
+    const parsed = stored ? JSON.parse(stored) : [];
 
-
-function canVoteLocally(eventId: string, votesPerUser: number, voteReset: "none" | "daily" | "hourly"): boolean {
-  const stored = localStorage.getItem(`voted_${eventId}`);
-  const parsed = stored ? JSON.parse(stored) : [];
-
-  const now = new Date();
-  const validVotes = parsed.filter((entry: { time: string }) => {
-    const time = new Date(entry.time);
-    if (voteReset === "none") return true;
-    if (voteReset === "daily") return time.toDateString() === now.toDateString();
-    if (voteReset === "hourly") return now.getTime() - time.getTime() < 3600_000;
-    return false;
-  });
-
-  return validVotes.length < votesPerUser;
-}
-
-function recordLocalVote(eventId: string) {
-  const stored = localStorage.getItem(`voted_${eventId}`);
-  const parsed = stored ? JSON.parse(stored) : [];
-  parsed.push({ time: new Date().toISOString() });
-  localStorage.setItem(`voted_${eventId}`, JSON.stringify(parsed));
-}
-
-
-
-const handleVote = async (contestantId: string) => {
-  if (!event) return toast.error("Event not loaded yet.");
-
-  if (hasEnded || ended) return toast.error("Voting has ended.");
-
-  const canVote = canVoteLocally(event.id, event.votesPerUser, event.voteReset);
-  if (!canVote) return toast.error("You've used up your vote(s) for now.");
-
-  setLoading(true);
-  try {
-    const ref = doc(db, "events", event.id, "contestants", contestantId);
-    await updateDoc(ref, { votes: increment(1) });
-
-    await addDoc(collection(db, "events", event.id, "votes"), {
-      contestantId,
-      voterId: localStorage.getItem("voterId") || "anonymous",
-      createdAt: Timestamp.now(),
+    const now = new Date();
+    const validVotes = parsed.filter((entry: { time: string }) => {
+      const time = new Date(entry.time);
+      if (voteReset === "none") return true;
+      if (voteReset === "daily")
+        return time.toDateString() === now.toDateString();
+      if (voteReset === "hourly")
+        return now.getTime() - time.getTime() < 3600_000;
+      return false;
     });
 
-    recordLocalVote(event.id);
-    toast.success("Vote counted!");
-    fetchContestants();
-  } catch (err) {
-    console.error("Failed to vote:", err);
-    toast.error("Failed to vote. Please try again.");
-  } finally {
-    setLoading(false);
+    return validVotes.length < votesPerUser;
   }
-};
 
+  function recordLocalVote(eventId: string) {
+    const stored = localStorage.getItem(`voted_${eventId}`);
+    const parsed = stored ? JSON.parse(stored) : [];
+    parsed.push({ time: new Date().toISOString() });
+    localStorage.setItem(`voted_${eventId}`, JSON.stringify(parsed));
+  }
+
+  const handleVote = async (contestantId: string) => {
+    if (!event) return toast.error("Event not loaded yet.");
+
+    if (hasEnded || ended) return toast.error("Voting has ended.");
+
+    const canVote = canVoteLocally(
+      event.id,
+      event.votesPerUser,
+      event.voteReset
+    );
+    if (!canVote) return toast.error("You've used up your vote(s) for now.");
+
+    setLoading(true);
+    try {
+      const ref = doc(db, "events", event.id, "contestants", contestantId);
+      await updateDoc(ref, { votes: increment(1) });
+
+      await addDoc(collection(db, "events", event.id, "votes"), {
+        contestantId,
+        voterId: localStorage.getItem("voterId") || "anonymous",
+        createdAt: Timestamp.now(),
+      });
+
+      recordLocalVote(event.id);
+      toast.success("Vote counted!");
+      fetchContestants();
+    } catch (err) {
+      console.error("Failed to vote:", err);
+      toast.error("Failed to vote. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!event)
     return (
-      <div className="flex items-center justify-center h-full text-center text-gray-500 text-xl font-semibold">
+      <div className="flex items-center justify-center h-full text-center w-full text-gray-500 text-xl font-semibold">
         Loading event...
       </div>
     );
@@ -237,182 +285,198 @@ const handleVote = async (contestantId: string) => {
   };
 
   return (
-    <main className="bg-gradient-to-br from-purple-100 to-indigo-100">
+    <main className="bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-gray-900 dark:to-gray-800 min-h-screen font-outfit text-white">
       <Navbar />
-      <div className="mx-auto flex w-full justify-around">
-        <div className="min-h-screen bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-6">
-          {/* <div className="min-h-screen bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-6 flex items-center justify-center"> */}
-          <div
-            className="w-full max-w-md bg-cover bg-center rounded-xl shadow-xl border border-white/20 overflow-hidden mb-10"
-            style={{
-              backgroundImage: `url(${event.posterUrl || "/fallback.jpg"})`,
-            }}
-          >
-            {/* Inner glassy overlay to ensure readability */}
-            <div className="backdrop-blur-md bg-white/10 dark:bg-black/30 p-6 h-full w-full text-white mb-10">
-              <h1 className="text-4xl bg-purple-400 rounded-lg p-4 sm:text-5xl text-white font-extrabold mb-4 bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10 font-sora">
+        {/* Event Details Section */}
+        <section className="bg-gradient-to-r backdrop-blur-md from-black to-purple-500 bg-black p-6 rounded-xl shadow-inner border border-white/10 mb-12">
+          <div className="flex flex-col lg:flex-row gap-8">
+            <div
+              className="rounded-xl overflow-hidden shadow-lg border border-white/10 bg-cover bg-center h-64 lg:w-1/2"
+              style={{
+                backgroundImage: `url(${event.posterUrl || "/fallback.jpg"})`,
+              }}
+            ></div>
+
+            <div className="flex-1">
+              <h1 className="text-3xl sm:text-5xl font-bold text-purple-200 mb-4">
                 {event.title}
               </h1>
-
-              <p className="text-white dark:text-gray-200 text-lg leading-relaxed mb-6">
+              <p className="text-sm text-white/90 mb-6 font-inter">
                 {event.description}
               </p>
 
-              <div className="flex flex-col sm:items-start gap-4">
+              <div className="flex flex-wrap gap-4">
                 <VotingLink eventId={String(eventId)} />
 
-                {userAuth?.uid === event.creatorId && (
-                  <button
-                    onClick={() => setShowModal(true)}
-                    className="bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300"
-                  >
-                    ➕ Add Contestant
-                  </button>
-                )}
+                <div className="flex gap-x-4 items-center">
+                  {userAuth?.uid === event.creatorId && (
+                    <button
+                      onClick={() => setShowModal(true)}
+                      className="bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-700 hover:brightness-110 text-white px-4 py-2 text-sm rounded-md shadow"
+                    >
+                      Add Contestant
+                    </button>
+                  )}
+
+                  <div>
+                    {userAuth?.uid === event.creatorId &&
+                      isAdmin &&
+                      !hasEnded &&
+                      !ended && (
+                        <button
+                          onClick={endVotingManually}
+                          className="bg-gradient-to-br mb-2 from-pink-600 via-rose-500 to-red-500 hover:brightness-110 text-white px-4 py-2 text-sm rounded-md shadow"
+                        >
+                          End Voting Now
+                        </button>
+                      )}
+
+                    <div className="">
+                      {!hasEnded && !ended ? (
+                        <p className="text-xs text-green-800 bg-green-100 dark:bg-green-900 dark:text-green-200 border border-green-300 dark:border-green-600 rounded px-4 py-2 inline-block">
+                          Voting ends at:
+                          <span className="ml-2 font-semibold">
+                            {event.endsAt.toDate().toLocaleString()}
+                          </span>
+                        </p>
+                      ) : (
+                        <p className="text-xs text-red-800 bg-red-100 dark:bg-red-900 dark:text-red-200 border border-red-300 dark:border-red-600 rounded px-4 py-2 inline-block">
+                          Voting has ended!
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+        </section>
 
-          {/* Voting End Info */}
-          {!hasEnded && !ended ? (
-            <p className="text-green-700 font-medium text-sm mb-6 bg-green-50 px-4 py-2 rounded border border-green-200">
-              ⏰ Voting ends at:{" "}
-              <span className="font-semibold">
-                {event.endsAt.toDate().toLocaleString()}
-              </span>
-            </p>
-          ) : (
-            <p className="text-red-700 font-semibold bg-red-50 px-4 py-2 mb-6 rounded border border-red-200">
-              ❌ Voting has ended!
-            </p>
-          )}
-
-          {/* End Voting Button */}
-          {isAdmin && !hasEnded && !ended && (
-            <button
-              onClick={endVotingManually}
-              className="mb-8 bg-black text-white px-5 py-2.5 rounded-lg hover:bg-gray-800 transition"
-            >
-              🔒 End Voting Now
-            </button>
-          )}
-        </div>
-
-        {/* VOTING PHASE */}
+        {/* Contestants or Results */}
         {!hasEnded && !ended ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
-            {sortedContestants.map((contestant) => (
-              <div
-                key={contestant.id}
-                className="border rounded-lg p-4 w-full h-44 backdrop-blur-md shadow-md hover:shadow-lg transition"
-              >
-                <div className="flex items-center gap-4">
+          <section>
+            <h2 className="text-xl font-semibold text-purple-300 mb-4">
+              Contestants
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {sortedContestants.map((contestant) => (
+                <div
+                  key={contestant.id}
+                  className="relative group rounded-2xl overflow-hidden shadow-xl transition hover:scale-[1.02] border border-white/10"
+                >
                   <img
                     src={contestant.imageUrl}
                     alt={contestant.name}
-                    className="w-20 h-20 object-cover rounded-full border-4 border-purple-500"
+                    className="w-full h-64 object-cover group-hover:brightness-75 transition duration-300"
                   />
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-800">
+                  <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 via-black/40 to-transparent p-4">
+                    <h3 className="text-lg font-outfit font-bold text-white/90 drop-shadow-md capitalize">
                       {contestant.name}
                     </h3>
-                    <p className="text-sm text-gray-500">
-                      Votes:{" "}
-                      <span className="font-bold text-purple-600">
-                        {contestant.votes}
-                      </span>
+                    <p className="text-sm font-inter text-white/90 drop-shadow-md">
+                      {contestant.votes} vote{contestant.votes !== 1 && "s"}
                     </p>
                   </div>
+                  <button
+                    onClick={() => handleVote(contestant.id)}
+                    disabled={loading}
+                    className="absolute top-3 right-3 bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium shadow-lg backdrop-blur-sm"
+                  >
+                    Vote
+                  </button>
                 </div>
-                <button
-                  disabled={loading}
-                  onClick={() => handleVote(contestant.id)}
-                  className="mt-4 w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded transition"
-                >
-                  🗳️ Vote
-                </button>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </section>
         ) : (
-          // RESULTS PHASE
-          <div id="results-section" className="mt-10">
+          <section className="mt-12" id="results-section">
             {userAuth?.uid === event.creatorId && (
               <button
-                className="mb-4 bg-gradient-to-r from-red-600 to-pink-500 text-white px-6 py-2 rounded-lg hover:scale-105 transition-transform shadow"
+                className="mb-6 bg-gradient-to-r from-purple-400 text-sm to-purple-500 text-white px-6 py-2 rounded-lg hover:scale-105 transition-transform shadow"
                 onClick={exportResultsAsPDF}
               >
                 Export Results as PDF
               </button>
             )}
 
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">
+            <h2 className="text-lg font-bold mb-6 text-purple-500">
               Final Results
             </h2>
 
-            <div className="space-y-3 mb-10">
-              {sortedContestants.map((c, i) => (
-                <div
-                  key={c.id}
-                  className={`flex items-center justify-between px-4 py-3 rounded shadow-sm mb-2 transition-all
-      ${
-        i === 0
-          ? "bg-yellow-100 border-2 border-yellow-400 animate-pulse"
-          : "bg-gray-100"
-      }`}
-                >
-                  <div className="flex items-center gap-2 font-semibold text-gray-800">
-                    {i === 0 && (
-                      <span className="text-2xl animate-bounce">👑</span>
-                    )}
-                    <span>
-                      {i + 1}. {c.name}
-                    </span>
-                  </div>
-
-                  <span
-                    className={`font-bold ${
-                      i === 0 ? "text-yellow-700 text-lg" : "text-purple-700"
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Leaderboard */}
+              <div className="space-y-4">
+                {sortedContestants.map((c, i) => (
+                  <div
+                    key={c.id}
+                    className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium shadow transition-all ${
+                      i === 0
+                        ? "bg-black border border-yellow-300 text-yellow-300"
+                        : "bg-purple-500 text-gray-200"
                     }`}
                   >
-                    {c.votes} votes
-                  </span>
-                </div>
-              ))}
-            </div>
+                    <div className="flex items-center gap-2">
+                      {i === 0 && (
+                        <span className="text-xl animate-bounce">👑</span>
+                      )}
+                      <span>
+                        {i + 1}. {c.name}
+                      </span>
+                    </div>
+                    <span>{c.votes} votes</span>
+                  </div>
+                ))}
+              </div>
 
-            <div className="flex justify-center">
-              <PieChart width={360} height={300}>
-                <Pie
-                  data={sortedContestants}
-                  dataKey="votes"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={110}
-                  fill="#8884d8"
-                  label
-                >
-                  {sortedContestants.map((_, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={
-                        ["#8884d8", "#82ca9d", "#ffc658", "#ff6666", "#66ccff"][
-                          index % 5
-                        ]
-                      }
+              {/* Pie Chart */}
+              <div className="bg-[#1c1c1f] border border-purple-500/20 rounded-xl p-6 shadow-xl">
+                <h3 className="text-white text-lg font-bold mb-4 text-center">
+                  Vote Distribution
+                </h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={sortedContestants}
+                      dataKey="votes"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={110}
+                      labelLine={false}
+                      label={renderCustomizedLabel} // assume this is defined
+                    >
+                      {sortedContestants.map((_, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]} // assume COLORS is defined
+                        />
+                      ))}
+                    </Pie>
+
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#1f1f1f",
+                        border: "1px solid #444",
+                        borderRadius: "8px",
+                        color: "#eee",
+                      }}
+                      itemStyle={{ fontSize: "14px", fontFamily: "Sora" }}
                     />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend
-                  layout="horizontal"
-                  align="center"
-                  verticalAlign="bottom"
-                />
-              </PieChart>
+
+                    <Legend
+                      iconType="circle"
+                      layout="horizontal"
+                      align="center"
+                      verticalAlign="bottom"
+                      wrapperStyle={{ color: "#ccc", fontSize: 12 }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-          </div>
+          </section>
         )}
       </div>
 
@@ -422,7 +486,7 @@ const handleVote = async (contestantId: string) => {
         <AddContestantModal
           eventId={Array.isArray(eventId) ? eventId[0] : eventId}
           onClose={() => setShowModal(false)}
-          refresh={fetchContestants} // If you have a refetch function
+          refresh={fetchContestants}
         />
       )}
     </main>

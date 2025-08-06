@@ -7,10 +7,16 @@ module.exports = {
   ],
   theme: {
     extend: {
-      fontFamily: {
+        fontFamily: {
         outfit: ["var(--font-outfit)"],
+        inter: ["var(--font-inter)"],
+        sora: ["var(--font-sora)"],
       },
     },
   },
+    darkMode: "class",
   plugins: [],
-}
+};
+
+
+

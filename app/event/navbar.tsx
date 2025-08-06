@@ -7,6 +7,7 @@ import { auth } from "../lib/firebase";
 import { signOut } from "firebase/auth";
 import { logoutWithRouter } from "../lib/logout";
 import { useRouter } from "next/navigation";
+import { MenuIcon } from "lucide-react";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -17,61 +18,46 @@ export default function Navbar() {
 
   const handleLogout = () => logoutWithRouter(router);
   return (
-    <nav className="bg-purple-100 p-6 rounded-lg shadow-md mb-6">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* <nav className="bg-purple-700 text-white px-6 py-4 shadow-md sticky top-0 z-50">
-      <div className="flex items-center justify-between max-w-6xl mx-auto"> */}
-        <Link href="/" className="text-xl font-bold tracking-wide">
-          🎯 Votely
+    <nav className="bg-black font-sora p-6 shadow-md mb-6 px-6 lg:px-12">
+      <div className="flex md:flex-row items-center justify-between gap-4">
+        <Link href="/" className="tracking-wide">
+          <h4 className="text-2xl font-semibold text-purple-500 mb-2">
+            Votely
+          </h4>
         </Link>
 
-        <div className="hidden md:flex gap-6 items-center">
+        <div className="hidden text-sm md:flex gap-6 items-center">
           <Link href="/events" className="hover:underline">
-            Events
+            My events
           </Link>
+          {user && (
+            <button
+              onClick={handleLogout}
+              className="hidden md:block bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+            >
+              Logout
+            </button>
+          )}
         </div>
-
-        {user && (
-          <button
-            onClick={handleLogout}
-            className="block text-left bg-red-500 px-3 py-2 rounded"
-          >
-            Logout
-          </button>
-        )}
 
         {/* Hamburger Menu */}
         <button className="md:hidden" onClick={toggleMenu}>
-          ☰
+          <MenuIcon className="w-6 h-6 text-purple-500" />
         </button>
       </div>
 
       {/* Mobile Dropdown */}
       {menuOpen && (
-        <div className="md:hidden mt-4 space-y-2 px-6">
+        <div className="md:hidden mt-4 space-y-2 text-sm">
           <Link href="/events" className="block hover:underline">
-            Events
+            My events
           </Link>
-          {user && (
-            <Link href="/create-event" className="block hover:underline">
-              Create Event
-            </Link>
-          )}
-          {user ? (
-            <button
-              onClick={handleLogout}
-              className="block text-left w-full bg-red-500 px-3 py-1 rounded"
-            >
-              Logout
-            </button>
-          ) : (
-            <Link
-              href="/login"
-              className="block bg-white text-purple-700 px-3 py-1 rounded"
-            >
-              Login
-            </Link>
-          )}
+          <button
+            onClick={handleLogout}
+            className="block text-left w-full bg-red-500 px-3 py-1 rounded"
+          >
+            Logout
+          </button>
         </div>
       )}
     </nav>

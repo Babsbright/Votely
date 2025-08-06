@@ -59,8 +59,8 @@ export default function AddContestantModal({ eventId, onClose, refresh }: Props)
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded shadow-lg max-w-md w-full">
-        <h2 className="text-xl font-bold mb-4">Add Contestant</h2>
+      <div className="bg-white text-black text-xs p-6 rounded shadow-lg max-w-md w-full">
+        <h2 className="text-lg font-bold mb-4">Add Contestant</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"

@@ -12,6 +12,8 @@ import { useRouter } from "next/navigation";
 import { withAuth } from "../lib/withAuth";
 import Footer from "../event/Footer";
 
+
+
 function formatCountdown(ms: number) {
   if (ms <= 0) return "Voting Ended";
   const days = Math.floor(ms / (1000 * 60 * 60 * 24));
@@ -28,6 +30,7 @@ const AllEventsPage = () => {
   const [user] = useAuthState(auth);
   const [isModalOpen, setModalOpen] = useState(false);
   const router = useRouter();
+const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => logoutWithRouter(router);
 
@@ -84,92 +87,199 @@ const AllEventsPage = () => {
 
   return (
     <div className="">
-      <div className="bg-[#1c1c1f] border border-[#2a2a2e] backdrop-blur-md py-6 px-6 lg:px-12 shadow-lg mb-6 text-sm font-outfit text-white">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <h2 className="text-2xl font-semibold text-purple-500 hero-card">
-            Votelly
-          </h2>
+    
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
-            <input
-              type="text"
-              placeholder="Search events..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full sm:w-64 px-4 py-2 rounded-lg bg-[#2a2a2e] border border-[#444] focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder:text-gray-400 text-sm"
-            />
 
-            <button
-              onClick={() => setModalOpen(true)}
-              className="bg-purple-600 hover:bg-purple-700 transition text-white px-4 py-2 rounded-lg text-sm font-medium"
-            >
-              ➕ Create Event
-            </button>
 
-            <button
-              onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
-            >
-              Logout
-            </button>
+  <div className="bg-[#1c1c1f] border border-[#2a2a2e] backdrop-blur-md py-6 px-6 lg:px-12 shadow-lg text-sm font-outfit text-white">
+    <div className="flex items-center justify-between font-sora">
+      {/* LEFT: Votely title */}
+      <h2 className="text-2xl font-semibold text-purple-500">Votely</h2>
 
-            <CreateEventModal
-              isOpen={isModalOpen}
-              onClose={() => setModalOpen(false)}
-            />
-          </div>
-        </div>
+      {/* RIGHT: Desktop visible, Mobile hidden */}
+      <div className="hidden lg:flex items-center gap-4">
+        <input
+          type="text"
+          placeholder="Search events..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-64 px-4 py-2 rounded-lg bg-[#2a2a2e] border border-[#444] focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder:text-gray-400 text-sm"
+        />
 
-        {/* Filter Buttons */}
-        <div className="flex flex-wrap gap-2 mt-6 justify-center md:justify-end">
-          {(["all", "free", "paid"] as Array<"all" | "free" | "paid">).map(
-            (type) => {
-              const isActive = filter === type;
-              const base = "px-4 py-1.5 rounded-full border text-xs transition";
+        <button
+          onClick={() => setModalOpen(true)}
+          className="bg-purple-600 hover:bg-purple-700 transition text-white px-4 py-2 rounded-lg text-sm font-medium"
+        >
+          Create Event
+        </button>
 
-              const styles = {
-                all: isActive
-                  ? "bg-purple-600 border-purple-600 text-white"
-                  : "bg-transparent text-purple-300 border-purple-400 hover:bg-purple-900",
-                free: isActive
-                  ? "bg-green-500 border-green-500 text-white"
-                  : "bg-transparent text-green-300 border-green-400 hover:bg-green-900",
-                paid: isActive
-                  ? "bg-red-500 border-red-500 text-white"
-                  : "bg-transparent text-red-300 border-red-400 hover:bg-red-900",
-              };
+        <button
+          onClick={handleLogout}
+          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+        >
+          Logout
+        </button>
+      </div>
 
-              return (
-                <button
-                  key={type}
-                  onClick={() => setFilter(type)}
-                  className={`${base} ${styles[type as keyof typeof styles]}`}
-                >
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </button>
-              );
-            }
+      
+ 
+
+      {/* HAMBURGER: Mobile only */}
+      <button
+        onClick={() => setMenuOpen(!menuOpen)}
+        className="lg:hidden focus:outline-none"
+      >
+        <svg
+          className="w-6 h-6 text-purple-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          {menuOpen ? (
+            <path strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+          ) : (
+            <path strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
           )}
-        </div>
-      </div>
-
-      <div className="py-6 min-h-[40vh]">
-        {filteredEvents.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-center text-gray-500 text-xl font-semibold">
-            Welcome, No event created yet
-          </div>
-        ) : (
-          <div className="px-6 lg:px-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {filteredEvents.map((ev) => (
-              <EventCard key={ev.id} ev={ev} />
-            ))}
-          </div>
-        )}
-      </div>
-      {/* <Footer /> */}
+        </svg>
+      </button>
     </div>
+
+   {/* FILTERS: Always visible */}
+    <div className="lg:flex hidden flex-wrap gap-2 mt-6 px-6 lg:px-12 justify-end">
+      {(["all", "free", "paid"] as const).map((type) => {
+        const isActive = filter === type;
+        const base =
+          "px-4 py-1.5 rounded-full border text-xs transition whitespace-nowrap";
+
+        const styles = {
+          all: isActive
+            ? "bg-purple-600 border-purple-600 text-white"
+            : "bg-transparent text-purple-300 border-purple-400 hover:bg-purple-900",
+          free: isActive
+            ? "bg-green-500 border-green-500 text-white"
+            : "bg-transparent text-green-300 border-green-400 hover:bg-green-900",
+          paid: isActive
+            ? "bg-red-500 border-red-500 text-white"
+            : "bg-transparent text-red-300 border-red-400 hover:bg-red-900",
+        };
+
+        return (
+          <button
+            key={type}
+            onClick={() => setFilter(type)}
+            className={`${base} ${styles[type]}`}
+          >
+            {type.charAt(0).toUpperCase() + type.slice(1)}
+          </button>
+        );
+      })}
+    </div>
+
+
+
+    {/* MOBILE MENU */}
+    <div
+      className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+        menuOpen ? "max-h-[1000px] mt-6" : "max-h-0"
+      }`}
+    >
+      <div className="flex flex-col gap-4">
+        <input
+          type="text"
+          placeholder="Search events..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full px-4 py-2 rounded-lg bg-[#2a2a2e] border border-[#444] focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder:text-gray-400 text-sm"
+        />
+
+        <button
+          onClick={() => setModalOpen(true)}
+          className="bg-purple-600 hover:bg-purple-700 transition text-white px-4 py-2 rounded-lg text-sm font-medium"
+        >
+          Create Event
+        </button>
+
+        <button
+          onClick={handleLogout}
+          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+
+
+ {/* FILTERS: Always visible */}
+    <div className="flex lg:hidden flex-wrap gap-2 mt-6 px-6 lg:px-12 justify-end">
+      {(["all", "free", "paid"] as const).map((type) => {
+        const isActive = filter === type;
+        const base =
+          "px-4 py-1.5 rounded-full border text-xs transition whitespace-nowrap";
+
+        const styles = {
+          all: isActive
+            ? "bg-purple-600 border-purple-600 text-white"
+            : "bg-transparent text-purple-300 border-purple-400 hover:bg-purple-900",
+          free: isActive
+            ? "bg-green-500 border-green-500 text-white"
+            : "bg-transparent text-green-300 border-green-400 hover:bg-green-900",
+          paid: isActive
+            ? "bg-red-500 border-red-500 text-white"
+            : "bg-transparent text-red-300 border-red-400 hover:bg-red-900",
+        };
+
+        return (
+          <button
+            key={type}
+            onClick={() => setFilter(type)}
+            className={`${base} ${styles[type]}`}
+          >
+            {type.charAt(0).toUpperCase() + type.slice(1)}
+          </button>
+        );
+      })}
+    </div>
+
+
+
+
+
+
+<div className="min-h-screen bg-gradient-to-br from-purple-200 to-purple-100">
+  {filteredEvents.length === 0 ? (
+    <div className="flex items-center py-10 justify-center h-full text-center text-gray-400 text-xl font-semibold font-sora">
+      👋 Welcome! No event created yet.
+    </div>
+  ) : (
+    <div className="py-10 px-4 sm:px-6 lg:px-12 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {filteredEvents.map((ev) => (
+        <EventCard key={ev.id} ev={ev} />
+      ))}
+    </div>
+  )}
+
+  <CreateEventModal
+    isOpen={isModalOpen}
+    onClose={() => setModalOpen(false)}
+  />
+  <Footer />
+</div>
+
+
+
+
+
+     
+      </div>
+       
   );
 };
+
+
+
 
 function EventCard({ ev }: { ev: any }) {
   const [timeLeft, setTimeLeft] = useState("Calculating...");
@@ -183,46 +293,53 @@ function EventCard({ ev }: { ev: any }) {
     return () => clearInterval(interval);
   }, []);
 
+  const isEnded = timeLeft.includes("Ended");
+
   return (
     <Link
       href={`/event/${ev.id}/view`}
-      className="relative rounded-lg overflow-hidden shadow-md group"
+      className="group rounded-2xl font-inter overflow-hidden shadow-xl border border-white/10 bg-[#1c1c1f] hover:border-purple-500 transition-all duration-300"
     >
-      <div
-        className="h-48 bg-cover bg-center transition-transform group-hover:scale-105"
+      {/* Poster */}
+      <div className="relative h-48 sm:h-52 bg-cover bg-center group-hover:scale-105 transition-transform duration-300"
         style={{ backgroundImage: `url(${ev.posterUrl || "/fallback.jpg"})` }}
-      />
-      <div className="p-4 bg-white dark:bg-gray-900">
-        <h3 className="text-lg font-bold truncate">{ev.title}</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          {ev.description.length > 100
-            ? ev.description.slice(0, 100) + "..."
-            : ev.description}
-        </p>
-        <div className="mt-2 flex justify-between items-center text-sm">
+      >
+        {/* Frosted overlay */}
+        <div className="absolute bottom-0 w-full px-4 py-2 bg-black/40 backdrop-blur-sm text-xs text-white flex justify-between">
+          <span className="font-semibold truncate capitalize text-base">{ev.title}</span>
           <span
-            className={`px-2 py-0.5 rounded text-white ${
-              ev.isPriced ? "bg-red-500" : "bg-green-500"
+            className={`text-[10px] px-2 py-0.5 rounded-full ${
+              ev.isPriced ? "bg-pink-600" : "bg-green-600"
             }`}
           >
             {ev.isPriced ? "Paid" : "Free"}
           </span>
-          <span className="text-gray-700 dark:text-gray-300">
-            {ev.contestantCount || 0} Contestants
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-4 space-y-2 text-white">
+        <p className="text-sm text-gray-400 leading-snug line-clamp-3">
+          {ev.description || "No description available."}
+        </p>
+
+        <div className="flex justify-between items-center text-xs mt-2">
+          <span className="text-gray-400">
+            👥 {ev.contestantCount || 0} Contestant
+            {ev.contestantCount === 1 ? "" : "s"}
+          </span>
+          <span
+            className={`font-medium ${
+              isEnded ? "text-red-500" : "text-blue-400 animate-pulse"
+            }`}
+          >
+            {isEnded ? "Voting Ended" : `⏳ ${timeLeft}`}
           </span>
         </div>
-        <p
-          className={`mt-1 text-sm font-medium ${
-            timeLeft.includes("Ended")
-              ? "text-red-600"
-              : "text-blue-600 animate-pulse"
-          }`}
-        >
-          Ends in: {timeLeft}
-        </p>
       </div>
     </Link>
   );
 }
+
 
 export default withAuth(AllEventsPage);

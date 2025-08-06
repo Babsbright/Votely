@@ -6,7 +6,7 @@ import axios from "axios";
 import { db, auth } from "../lib/firebase";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { PanelLeftClose } from "lucide-react";
+import { X } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function CreateEventModal({
@@ -77,8 +77,9 @@ export default function CreateEventModal({
         creatorId: user.uid,
       });
 
-      onClose(); // close modal
+      onClose();
       router.push(`/event/${docRef.id}/view`);
+      toast.success("Event created successfully!");
     } catch (err: any) {
       console.error("Error creating event:", err);
       toast.error("Failed to create event.");
@@ -108,7 +109,7 @@ export default function CreateEventModal({
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white text-2xl"
         >
-          <PanelLeftClose />
+          <X />
         </button>
 
         <h2 className="text-xl font-bold mb-4 text-center">Create New Event</h2>

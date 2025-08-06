@@ -6,13 +6,13 @@ import { FaXTwitter } from 'react-icons/fa6';
 const Footer: React.FC = () => (
   <>
     {/* Footer */}
-    <footer className="bg-black border-t border-gray-800 py-16 px-6 text-gray-400 text-xs">
+    <footer className="bg-black font-sora border-t border-gray-800 py-16 px-6 text-gray-400 text-xs">
       <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 fade-in">
-        {/* Votelly Info */}
+        {/* Votely Info */}
         <div>
-          <h4 className="text-sm font-semibold text-purple-500 mb-2">Votelly</h4>
+          <h4 className="text-2xl font-semibold text-purple-500 mb-2">Votely</h4>
           <p className="text-xs leading-relaxed text-gray-400">
-            Votelly lets you launch powerful, engaging voting contests in
+            Votely lets you launch powerful, engaging voting contests in
             minutes. Create, vote, and share events with real-time results and
             fraud-proof security.
           </p>
@@ -92,7 +92,7 @@ const Footer: React.FC = () => (
       </div>
 
       <div className="mt-12 text-center text-gray-600 text-xs border-t border-gray-700 pt-6">
-        © {new Date().getFullYear()} <span className=" text-purple-500">Votelly. </span>Made with 💜 by Tolu.
+        © {new Date().getFullYear()} <span className=" text-purple-500">Votely. </span>Made with 💜 by Tolu.
       </div>
     </footer>
   </>

@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false); 
   const router = useRouter();
   const cardRef = useRef(null);
 
@@ -23,11 +24,14 @@ export default function SignupPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true); // 👈 Set loading true
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       router.push("/login");
     } catch (error: any) {
       toast.error(error.message);
+    } finally {
+      setLoading(false); // 👈 Reset loading
     }
   };
 
@@ -77,9 +81,12 @@ export default function SignupPage() {
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-2 rounded-md shadow-md transition-transform transform hover:scale-105"
+            disabled={loading}
+            className={`w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-2 rounded-md shadow-md transition-transform transform ${
+              loading ? "opacity-60 cursor-not-allowed" : "hover:scale-105"
+            }`}
           >
-            Sign Up
+            {loading ? "Signing up..." : "Sign Up"}
           </button>
         </form>
 

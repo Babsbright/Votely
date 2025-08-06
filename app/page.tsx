@@ -97,11 +97,11 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-black text-white font-outfit overflow-x-hidden">
+    <main className="min-h-screen bg-black text-white font-inter overflow-x-hidden">
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-black bg-opacity-95 backdrop-blur-md shadow-md py-4 px-6 md:px-12 flex justify-between items-center">
+      <nav className="sticky top-0 font-sora z-50 bg-black bg-opacity-95 backdrop-blur-md shadow-md py-4 px-6 md:px-12 flex justify-between items-center">
         <Link href="/" className="text-3xl font-extrabold text-purple-500">
-          Votelly
+          Votely.
         </Link>
         <div className="space-x-4 hidden sm:flex items-center">
           <Link
@@ -122,12 +122,11 @@ export default function LandingPage() {
       {/* Hero Section - Webex Style */}
       <section className="relative min-h-[80vh] flex flex-col md:flex-row justify-between items-center px-6 md:px-12 py-20 bg-[url('/hero.jpg')] bg-cover bg-center bg-no-repeat">
         <div className="md:w-1/2 text-left">
-          <h1 className="hero-heading text-5xl md:text-6xl font-bold leading-tight text-white mb-6">
+          <h1 className="hero-heading font-outfit text-5xl md:text-6xl font-bold leading-tight text-white mb-6">
             Create & Run <br /> Stunning Voting Events
           </h1>
           <p className="text-sm text-gray-300 mb-8">
-            Whether it&apos;s a photo contest, talent show, or fan favorite challenge
-            — Votelly makes it ridiculously easy to set up, vote, and view
+            Whether it&apos;s a photo contest, talent show, or fan favorite challenge, Votely makes it ridiculously easy to set up, vote, and view
             results live.
           </p>
           <div>
@@ -162,7 +161,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features */}
-      <section className="bg-[#0f0f0f] text-white py-24 px-6 md:px-20">
+      <section className="font-outfit bg-purple-500 text-white py-28 px-6 md:px-20">
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-12">
           {[
             {
@@ -180,7 +179,7 @@ export default function LandingPage() {
           ].map((f, i) => (
             <div
               key={i}
-              className="fade-in opacity-0 bg-white/10 backdrop-blur-md border border-white/10 rounded-xl p-6 shadow-lg hover:shadow-xl transition duration-300"
+              className="fade-in opacity-0 bg-black/90 backdrop-blur-md border border-white/10 rounded-xl p-6 shadow-lg hover:shadow-xl transition duration-300"
             >
               <h3 className="text-purple-500 font-semibold text-sm mb-2">
                 {f.title}
@@ -209,7 +208,7 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="relative py-28 px-6 bg-gradient-to-r from-purple-800 to-purple-600 text-white overflow-hidden">
+      <section className="relative py-28 px-6 bg-gradient-to-r from-purple-500 to-purple-600 text-white overflow-hidden">
         <div className="absolute inset-0 bg-[url('/hero.svg')] bg-cover bg-center opacity-20" />
         <div className="relative z-10 max-w-xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-3">Ready to Go Live?</h2>
@@ -229,11 +228,11 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="bg-black border-t border-gray-800 py-16 px-6 text-gray-400 text-xs">
         <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 fade-in">
-          {/* Votelly Info */}
+          {/* Votely Info */}
           <div>
-            <h4 className="text-sm font-semibold text-purple-500 mb-2">Votelly</h4>
+            <h4 className="font-semibold text-purple-500 mb-2 text-2xl">Votely</h4>
             <p className="text-xs leading-relaxed text-gray-400">
-              Votelly lets you launch powerful, engaging voting contests in
+              Votely lets you launch powerful, engaging voting contests in
               minutes. Create, vote, and share events with real-time results and
               fraud-proof security.
             </p>
@@ -313,7 +312,7 @@ export default function LandingPage() {
         </div>
 
         <div className="mt-12 text-center text-gray-600 text-xs border-t border-gray-700 pt-6">
-          © {new Date().getFullYear()} <span className=" text-purple-500">Votelly. </span>Made with 💜 by Tolu.
+          © {new Date().getFullYear()} <span className=" text-purple-500">Votely. </span>Made with 💜 by Tolu.
         </div>
       </footer>
     </main>

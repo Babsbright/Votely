@@ -1,26 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "../lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import gsap from "gsap";
-import { useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false); // 👈 loading state
   const router = useRouter();
   const cardRef = useRef(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true); // 👈 Start loading
     try {
       await signInWithEmailAndPassword(auth, email, password);
       router.push("/events");
     } catch (err: any) {
       toast.error("Login failed: " + err.message);
+    } finally {
+      setLoading(false); // 👈 End loading
     }
   };
 
@@ -38,7 +41,6 @@ export default function LoginPage() {
         ref={cardRef}
         className="w-full max-w-md bg-white/30 dark:bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl rounded-xl p-8 sm:p-10"
       >
-        {/* Brand */}
         <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 text-center mb-6 tracking-tight">
           Votely
         </h1>
@@ -78,9 +80,12 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-2 rounded-md shadow-md transition-transform transform hover:scale-105"
+            disabled={loading}
+            className={`w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-2 rounded-md shadow-md transition-transform transform ${
+              loading ? "opacity-60 cursor-not-allowed" : "hover:scale-105"
+            }`}
           >
-            Log In
+            {loading ? "Logging in..." : "Log In"}
           </button>
         </form>
 
